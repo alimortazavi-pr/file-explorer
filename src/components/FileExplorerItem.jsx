@@ -4,10 +4,10 @@ import { useState } from "react";
 /* eslint-disable react/prop-types */
 const FileExplorerItem = ({
   item,
-  setSelectedFolder,
-  setSelectedFile,
-  selectedFile,
-  selectedFolder,
+  onClickItemHandler,
+  selectedFileOrFolder,
+  onClickEditHandler,
+  deleteFileOrFolder,
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -15,71 +15,44 @@ const FileExplorerItem = ({
     setIsExpanded((prev) => !prev);
   }
 
-  function selectFolder() {
-    setSelectedFolder(item);
-    setSelectedFile(undefined);
+  function selectFileOrFolder() {
+    onClickItemHandler(item, item.isFolder);
     toggleIsExpanded();
   }
 
-  function selectFile() {
-    setSelectedFile(item);
-    setSelectedFolder(undefined);
-  }
-
   // eslint-disable-next-line react/prop-types
-  if (item.isFolder) {
-    return (
-      <div className="text-white">
-        <div
-          onClick={selectFolder}
-          className={`font-semibold cursor-pointer ${
-            selectedFolder?.id == item.id
-              ? "flex items-center justify-between px-3 bg-gray-200/20"
-              : ""
-          }`}
-        >
-          <span>
-            {isExpanded ? "📂" : "📁"} {item.name}
-          </span>
-          {selectedFolder?.id == item.id && (
-            <div className="flex items-center gap-2">
-              <span>edit</span>
-              <span>delete</span>
-            </div>
-          )}
-        </div>
-        {item.items.length > 0 && isExpanded && (
-          <div className="ms-3">
-            {item.items.map((it) => (
-              <FileExplorerItem
-                key={it}
-                item={it}
-                setSelectedFolder={setSelectedFolder}
-                setSelectedFile={setSelectedFile}
-                selectedFile={selectedFile}
-                selectedFolder={selectedFolder}
-              />
-            ))}
+  return (
+    <div className="text-white mb-2">
+      <div
+        onClick={selectFileOrFolder}
+        className={`font-semibold cursor-pointer px-3 ${
+          selectedFileOrFolder.fileOrFolder?.id == item.id
+            ? "flex items-center justify-between bg-gray-200/20"
+            : ""
+        }`}
+      >
+        <span>
+          {item.isFolder ? (isExpanded ? "📂" : "📁") : "📄"} {item.name}
+        </span>
+        {selectedFileOrFolder.fileOrFolder?.id == item.id && item.id != 1 && (
+          <div className="flex items-center gap-2">
+            <span onClick={onClickEditHandler}>edit</span>
+            <span onClick={deleteFileOrFolder}>delete</span>
           </div>
         )}
       </div>
-    );
-  }
-
-  return (
-    <div
-      className={`cursor-pointer ${
-        selectedFile?.id == item.id
-          ? "flex items-center justify-between px-3 bg-gray-200/20"
-          : ""
-      }`}
-      onClick={selectFile}
-    >
-      <div>{item.name}</div>
-      {selectedFile?.id == item.id && (
-        <div className="flex items-center gap-2">
-          <span>edit</span>
-          <span>delete</span>
+      {item.isFolder && item.items.length > 0 && isExpanded && (
+        <div className="ms-3 mt-2">
+          {item.items.map((it) => (
+            <FileExplorerItem
+              key={it.id}
+              item={it}
+              selectedFileOrFolder={selectedFileOrFolder}
+              onClickItemHandler={onClickItemHandler}
+              onClickEditHandler={onClickEditHandler}
+              deleteFileOrFolder={deleteFileOrFolder}
+            />
+          ))}
         </div>
       )}
     </div>
